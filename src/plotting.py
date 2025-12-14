@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import re
 from pathlib import Path
 
+plt.rcParams['font.size'] = 18
+
 def sanitize_label(label):
     label = re.sub(r'mathbf', '', label)
     label = re.sub(r'tilde', '', label)
@@ -11,8 +13,10 @@ def sanitize_label(label):
 # Comparing up to four functions agains some x_values
 def cmp_funcs(params,
                        x_values, x_label, y_label,
-                       T_func1, T_func1_label, T_func2=None, T_func2_label=None, 
-                       T_func3=None, T_func3_label=None, T_func4=None, T_func4_label=None,
+                       T_func1, T_func1_label,
+                       T_func2=None, T_func2_label=None, 
+                       T_func3=None, T_func3_label=None,
+                       T_func4=None, T_func4_label=None,
                        T_func5=None, T_func5_label=None,
                        T_func6=None, T_func6_label=None,
                        yscale='linear', filename=None):
@@ -40,7 +44,7 @@ def cmp_funcs(params,
     plt.yscale(yscale)
     plt.grid(True)
     plt.legend()
-    #plt.tight_layout()
+    plt.tight_layout()
     
     if filename == "auto":
         (alpha, beta, gamma, delta, d, n, e_top_s) = params

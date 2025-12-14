@@ -1,27 +1,9 @@
 import numpy as np
-import src.numerical as naive
+import src.numerical.num_caseII as numII
 
-#thm:sum-equilibrium-expressed-opinions-non-trunk
-def thm_sum_equilibrium_expressed_opinions_non_trunc(params):
-    (alpha, beta, gamma, delta, d, n, e_top_s) = params
-    return (1+(d+1)*beta*(1+gamma*(2*alpha+2*delta-1))) / (beta*(d+1)+1) * e_top_s
-
-#thm:sum-equilibrium-expressed-opinions-trunk
-def thm_sum_equilibrium_expressed_opinions_trunc(params):
-    (alpha, beta, gamma, delta, d, n, e_top_s) = params
-    return ((1+beta*(1+d)*(1-alpha-delta)*(1-gamma))*e_top_s + alpha*beta*(1+d)*n) / (1+beta*(1+d))
-
-def thm_sum_equilibrium_expressed_opinions_general(params):
-    (alpha, beta, gamma, delta, d, n, e_top_s) = params
-    z_M = (1+gamma)*(alpha+delta) / (alpha*n) * e_top_s
-    return np.where(z_M < 1, thm_sum_equilibrium_expressed_opinions_non_trunc(params),
-                             thm_sum_equilibrium_expressed_opinions_trunc(params))
-
-def thm_avg_equilibrium_expressed_opinions_general(params):
-    (alpha, beta, gamma, delta, d, n, e_top_s) = params
-    return thm_sum_equilibrium_expressed_opinions_general(params) / n
-
-def thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
+def thm_dims(params, verify=False):
+    (alpha, beta, gamma, delta, n, k, e_top_s, trunc) = params
+    print("alpha: ", alpha)
     if verify:
         n_1 = int(np.rint(alpha * n))
         n_2 = int(n-n_1)
@@ -31,8 +13,9 @@ def thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=Fal
         n_2 = (1-alpha)*n
     return (n_1, n_2, k)
 
-def thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
+def thm_M_inv_params(params, verify=False):
+    (alpha, beta, gamma, delta, n, k, e_top_s, trunc) = params
+    (n_1, n_2, k) = thm_dims(params, verify)
 
     a_1 = 2.0 + beta + (beta + 1) * n_1
     d_1 = 2.0 + beta + (beta + 1) * n_2
@@ -43,7 +26,7 @@ def thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, ve
     D = d_1*d_2-d_2*k-d_1*(n_2-k)
     
     if verify:
-        mathbf_M = naive.naive_mathbf_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc)
+        mathbf_M = numII.naive_mathbf_M(alpha, beta, gamma, delta, n, k, e_top_s, trunc)
         mathcal_A = mathbf_M[0:n_1, 0:n_1]
         mathcal_B = mathbf_M[0:n_1, n_1:n]
         mathcal_C = mathbf_M[n_1:n, 0:n_1]
@@ -116,7 +99,7 @@ def thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, ve
     v_2 = v_1+k*S_a
     
     if verify:
-        mathbf_M = naive.naive_mathbf_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc)
+        mathbf_M = numII.naive_mathbf_M(alpha, beta, gamma, delta, n, k, e_top_s, trunc)
         mathbf_M_inv = np.linalg.inv(mathbf_M)
         
         mathbf_U = mathbf_M_inv[0:n_1, 0:n_1]
@@ -222,7 +205,7 @@ def thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, ve
     thm_Y_2 = k*Q_a + 1/d_2+(n_2-k)*P_a
     
     if verify:
-        (e_M_top_M_inv, e_M_prim_top_M_inv) = naive.naive_e_M_and_M_prim_top_M_inv(alpha, beta, gamma, delta, k, n, e_top_s, trunc)
+        (e_M_top_M_inv, e_M_prim_top_M_inv) = numII.naive_e_M_and_M_prim_top_M_inv(alpha, beta, gamma, delta, n, k, e_top_s, trunc)
         
         thm_e_M_top_M_inv = np.block(
             [thm_U_1*np.ones(k), thm_U_2*np.ones(n_1-k), thm_V_1*np.ones(k), thm_V_2*np.ones(n_2-k)]
@@ -248,9 +231,10 @@ def thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, ve
 
 
 #thm:sum-of-expressed-equilibrium-case2-nontrunc
-def thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False, z_avg_all=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    (thm_U_1, thm_U_2, thm_V_1, thm_V_2, thm_X_1, thm_X_2, thm_Y_1, thm_Y_2) = thm_M_inv_params(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False)        
+def thm_sum_of_expressed_equilibrium_case2(params, verify=False, z_avg_all=False):
+    (alpha, beta, gamma, delta, n, k, e_top_s, trunc) = params
+    (n_1, n_2, k) = thm_dims(params, verify)
+    (thm_U_1, thm_U_2, thm_V_1, thm_V_2, thm_X_1, thm_X_2, thm_Y_1, thm_Y_2) = thm_M_inv_params(params, verify=False)        
 
     # Opinion vectors
     if z_avg_all:
@@ -275,7 +259,7 @@ def thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_to
                                     thm_Y_2*(n_2-k)*(thm_bar_s_M_prim + beta*thm_z_M_prim*n_2    )
     
     if verify:
-        (e_M_top_tilde_z_equi, e_M_prim_top_tilde_z_equi) = naive.naive_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc)
+        (e_M_top_tilde_z_equi, e_M_prim_top_tilde_z_equi) = numII.naive_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, n, k, e_top_s, trunc)
 
         print("e_M_top_tilde_z_equi:")
         print(e_M_top_tilde_z_equi)
@@ -296,38 +280,38 @@ def thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_to
 #thm_mathbf_M_inv = thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, mathbf_e_top_s, trunc=False, verify=True)
 
 
-def thm_sum_of_expressed_equilibrium_case2_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False, z_avg_all=False):
-    return thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all)[0]
+def thm_sum_of_expressed_equilibrium_case2_M(params, verify=False, z_avg_all=False):
+    return thm_sum_of_expressed_equilibrium_case2(params, verify, z_avg_all)[0]
     
-def thm_sum_of_expressed_equilibrium_case2_M_prim(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False, z_avg_all=False):
-    return thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all)[1]
+def thm_sum_of_expressed_equilibrium_case2_M_prim(params, verify=False, z_avg_all=False):
+    return thm_sum_of_expressed_equilibrium_case2(params, verify, z_avg_all)[1]
 
-def thm_sum_of_expressed_equilibrium_case2_tot(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False, z_avg_all=False):
-    return thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all)[0] +\
-           thm_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all)[1]
-
-
-def thm_avg_of_expressed_equilibrium_case2_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify) / n_1
-
-def thm_avg_of_expressed_equilibrium_case2_M_prim(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_M_prim(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify) / n_2
-
-def thm_avg_of_expressed_equilibrium_case2_tot(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_tot(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify) / (n_1+n_2)
+def thm_sum_of_expressed_equilibrium_case2_tot(params, verify=False, z_avg_all=False):
+    return thm_sum_of_expressed_equilibrium_case2(params, verify, z_avg_all)[0] +\
+           thm_sum_of_expressed_equilibrium_case2(params, verify, z_avg_all)[1]
 
 
-def out_avg_of_expressed_equilibrium_case2_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_M(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all=True) / n_1
+def thm_avg_of_expressed_equilibrium_case2_M(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_M(params, verify) / n_1
 
-def out_avg_of_expressed_equilibrium_case2_M_prim(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_M_prim(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all=True) / n_2
+def thm_avg_of_expressed_equilibrium_case2_M_prim(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_M_prim(params, verify) / n_2
 
-def out_avg_of_expressed_equilibrium_case2_tot(alpha, beta, gamma, delta, k, n, e_top_s, trunc = False, verify=False):
-    (n_1, n_2, k) = thm_dims(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify)
-    return thm_sum_of_expressed_equilibrium_case2_tot(alpha, beta, gamma, delta, k, n, e_top_s, trunc, verify, z_avg_all=True) / (n_1+n_2)
+def thm_avg_of_expressed_equilibrium_case2_tot(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_tot(params, verify) / (n_1+n_2)
+
+
+def out_avg_of_expressed_equilibrium_case2_M(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_M(params, verify, z_avg_all=True) / n_1
+
+def out_avg_of_expressed_equilibrium_case2_M_prim(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_M_prim(params, verify, z_avg_all=True) / n_2
+
+def out_avg_of_expressed_equilibrium_case2_tot(params, verify=False):
+    (n_1, n_2, k) = thm_dims(params, verify)
+    return thm_sum_of_expressed_equilibrium_case2_tot(params, verify, z_avg_all=True) / (n_1+n_2)
