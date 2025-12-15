@@ -1,9 +1,5 @@
 import numpy as np
 
-def naive_sum_equilibrium_expressed_opinions_non_trunc(params):
-    (alpha, beta, gamma, delta, d, n, e_top_s) = params
-    #z_M = 
-
 def naive_dims(alpha, beta, gamma, delta, n, k, e_top_s, trunc = False):
     n_1 = int(np.rint(alpha * n))
     n_2 = n-n_1
@@ -115,12 +111,15 @@ def naive_sum_of_expressed_equilibrium_case2(alpha, beta, gamma, delta, n, k, e_
     #Y_1 = e_top_M_prim_inv[0, n_1]
     #Y_2 = e_top_M_prim_inv[0, n_1+k]
     
+    z_M      = (1+gamma)*(  alpha+delta)/(n_1) * e_top_s
+    z_M_prim = (1-gamma)*(1-alpha-delta)/(n_2) * e_top_s
+
     zeta = np.block([
-        (1+gamma)*(alpha+delta)/(n_1) * np.ones((k)),
-        (1+gamma)*(alpha+delta)/(n_1) * np.ones((n_1-k)),
-        (1-gamma)*(1-alpha-delta)/(n_2) * np.ones((k)),
-        (1-gamma)*(1-alpha-delta)/(n_2) * np.ones((n_2-k))
-    ]) * e_top_s
+        z_M      * np.ones((k)),
+        z_M      * np.ones((n_1-k)),
+        z_M_prim * np.ones((k)),
+        z_M_prim * np.ones((n_2-k))
+    ]) 
     print(zeta)
     
     # "Made up" s vector with avarage in each entry
